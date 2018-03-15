@@ -1,0 +1,1 @@
+# insync-gnome-extension
