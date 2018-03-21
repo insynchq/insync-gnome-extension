@@ -1,20 +1,22 @@
 const St = imports.gi.St
 const Main = imports.ui.main
-const Util = imports.misc.util
 const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Gio = imports.gi.Gio
 const GLib = imports.gi.GLib
 
-const _onlineIcon = Gio.icon_new_for_string(Me.path + '/icons/normal.png')
-const _offlineIcon = Gio.icon_new_for_string(Me.path + '/icons/offline.png')
+const _onlineIcon = _getIcon('/icons/normal.png')
+const _offlineIcon = _getIcon('/icons/offline.png')
 const onlineIcon = new St.Icon({gicon: _onlineIcon, style_class: 'insync-icon'})
 const offlineIcon = new St.Icon({gicon: _offlineIcon, style_class: 'insync-icon'})
-const uid = _callCmd('id -u')
-const socketPath = '/tmp/insync' + uid + '.sock'
 
+let socketPath
 let button
 let checkStatusTimeout
 let showInsyncTimeout
+
+function _getIcon (path) {
+  return Gio.icon_new_for_string(Me.path + path)
+}
 
 function _callCmd (cmd) {
   return GLib.spawn_command_line_sync(cmd)[1].toString().trim()
@@ -64,6 +66,13 @@ function _checkStatus () {
 }
 
 function init () {
+
+}
+
+function enable () {
+  socketPath = '/tmp/insync' + _callCmd('id -u') + '.sock'
+  checkStatusTimeout = GLib.timeout_add(null, 1000, _checkStatus)
+
   button = new St.Bin({ style_class: 'panel-button',
     reactive: true,
     can_focus: true,
@@ -72,10 +81,6 @@ function init () {
     track_hover: true })
 
   button.connect('button-press-event', _toggleInsync)
-  checkStatusTimeout = GLib.timeout_add(null, 1000, _checkStatus)
-}
-
-function enable () {
   Main.panel._rightBox.insert_child_at_index(button, 0)
 }
 
