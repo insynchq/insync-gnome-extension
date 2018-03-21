@@ -1,1 +1,1 @@
-{"uuid": "support@insynchq.com", "shell-version": ["3.18.5"], "description": "Allow showing and hiding of Insync app.", "name": "Insync"}
+{"uuid": "support@insynchq.com", "shell-version": ["3.18.5"], "description": "Allow showing and hiding of the Insync app. Requires the Insync desktop client. https://www.insynchq.com", "name": "Insync"}
