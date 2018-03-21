@@ -1,20 +1,17 @@
 const St = imports.gi.St
 const Main = imports.ui.main
-const Me = imports.misc.extensionUtils.getCurrentExtension()
 const Gio = imports.gi.Gio
 const GLib = imports.gi.GLib
 
-const _onlineIcon = _getIcon('/icons/normal.png')
-const _offlineIcon = _getIcon('/icons/offline.png')
-const onlineIcon = new St.Icon({gicon: _onlineIcon, style_class: 'insync-icon'})
-const offlineIcon = new St.Icon({gicon: _offlineIcon, style_class: 'insync-icon'})
-
+let onlineIcon
+let offlineIcon
 let socketPath
 let button
 let checkStatusTimeout
 let showInsyncTimeout
 
 function _getIcon (path) {
+  var Me = imports.misc.extensionUtils.getCurrentExtension()
   return Gio.icon_new_for_string(Me.path + path)
 }
 
@@ -70,6 +67,9 @@ function init () {
 }
 
 function enable () {
+  onlineIcon = new St.Icon({gicon: _getIcon('/icons/normal.png'), style_class: 'insync-icon'})
+  offlineIcon = new St.Icon({gicon: _getIcon('/icons/offline.png'), style_class: 'insync-icon'})
+
   socketPath = '/tmp/insync' + _callCmd('id -u') + '.sock'
   checkStatusTimeout = GLib.timeout_add(null, 1000, _checkStatus)
 
