@@ -13,7 +13,8 @@ const uid = _callCmd('id -u')
 const socketPath = '/tmp/insync' + uid + '.sock'
 
 let button
-let timeoutId
+let checkStatusTimeout
+let showInsyncTimeout
 
 function _callCmd (cmd) {
   return GLib.spawn_command_line_sync(cmd)[1].toString().trim()
@@ -36,15 +37,18 @@ function _showInsync () {
   }
 
   _callCmd('insync show')
-  button.set_child(onlineIcon)
   return false
 }
 
 function _toggleInsync () {
   if (!_isRunning()) {
     _callCmd('insync start')
+
+    if (showInsyncTimeout) {
+      GLib.source_remove(showInsyncTimeout)
+    }
     // timeout_add will keep on running until its function returns false
-    GLib.timeout_add(1000, null, _showInsync)
+    showInsyncTimeout = GLib.timeout_add(null, 1000, _showInsync)
   } else {
     _callCmd('insync toggle')
   }
@@ -68,7 +72,7 @@ function init () {
     track_hover: true })
 
   button.connect('button-press-event', _toggleInsync)
-  timeoutId = GLib.timeout_add(1000, null, _checkStatus)
+  checkStatusTimeout = GLib.timeout_add(null, 1000, _checkStatus)
 }
 
 function enable () {
@@ -77,5 +81,5 @@ function enable () {
 
 function disable () {
   Main.panel._rightBox.remove_child(button)
-  GLib.source_remove(timeoutId)
+  GLib.source_remove(checkStatusTimeout)
 }
