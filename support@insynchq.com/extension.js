@@ -13,6 +13,7 @@ const uid = _callCmd('id -u')
 const socketPath = '/tmp/insync' + uid + '.sock'
 
 let button
+let timeoutId
 
 function _callCmd (cmd) {
   return GLib.spawn_command_line_sync(cmd)[1].toString().trim()
@@ -67,7 +68,7 @@ function init () {
     track_hover: true })
 
   button.connect('button-press-event', _toggleInsync)
-  GLib.timeout_add(1000, null, _checkStatus)
+  timeoutId = GLib.timeout_add(1000, null, _checkStatus)
 }
 
 function enable () {
@@ -76,4 +77,5 @@ function enable () {
 
 function disable () {
   Main.panel._rightBox.remove_child(button)
+  GLib.source_remove(timeoutId)
 }
